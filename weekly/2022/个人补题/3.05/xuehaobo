@@ -1,0 +1,133 @@
+# 补题报告
+
+### Strange Balls
+
+[https://vjudge.csgrandeur.cn/problem/AtCoder-abc240_d]: 
+
+#####  思路
+
+#####  通过读完题目可以发现他要执行的操作和栈很相似，所以可以通关栈来模拟其操作，再通过数组来记录球上的值和这球相连的个数来判断求可不可以消除
+
+##### 代码
+
+`
+
+```c++
+#include<bits/stdc++.h>
+#include<algorithm>
+#define int long long
+#define endl '\n'
+using namespace std;
+ 
+typedef pair<int,int> PII;
+ 
+const int N=200010;
+ 
+void solve()
+{
+	int n;
+	int a[N];
+	stack<PII>zheng;//第一个表示a[i]的值,第二个表示与a[i]相连的有几个  
+	cin>>n;
+	for(int i=1;i<=n;i++)
+		cin>>a[i];
+	for(int i=1;i<=n;i++)
+	{
+		//为空或者与上一个值不同 直接进栈  
+		if(zheng.empty()||zheng.top().first!=a[i])
+			zheng.push({a[i],1});
+		else//zheng.top().first==a[i] 
+		{
+			//如果加上1的值等于a[i]，那么可以消除  
+			if(zheng.top().second+1==a[i])
+			{
+				while(!zheng.empty()&&zheng.top().first==a[i])
+					zheng.pop();
+			}
+			else//与a[i]相连的不够a[i]所带的值 
+				zheng.push({a[i],zheng.top().second+1});
+		}
+		cout<<zheng.size()<<endl;
+	}
+}
+ 
+signed main()
+{
+	ios::sync_with_stdio(false);
+	int t=1; // cin>>t;
+	while(t--)
+		solve();
+	
+	
+	return 0;
+}
+```
+
+`
+
+### Ranges on Tree
+
+[https://vjudge.csgrandeur.cn/problem/AtCoder-abc240_e]: 
+
+##### 思路
+
+对于每一个叶节点，要让总的数尽可能小，那么叶节点的l=r自然是最优的。我们一次dfs找出所有叶节点并计数，每一个叶节点的l，r就是它对应的计数编号。
+
+然后再来一次dfs从根往下递归，每一个根节点的l应该使它的所有叶节点的l的最小值，相应的，根节点的r就应该是所有叶节点的r的最大值。（看完别人的题解才有的思路）
+
+##### 代码
+
+```c++
+#include<bits/stdc++.h>
+using namespace std;
+#define ll long long
+vector<ll> mas[200010];
+ll a,b;
+ll lf[200010];
+ll cnt=0;//叶子数
+ll l[200010];
+ll r[200010];
+void dfs(ll u,ll p){
+	if(u!=1&&mas[u].size()==1){
+		lf[u]=++cnt;
+		return;
+	}
+	for(ll i:mas[u]){
+		if(i!=p){
+			dfs(i,u);
+		}
+	}
+	return;
+} //建树 
+void dfs2(ll u,ll p){
+	if(lf[u]){
+		l[u]=lf[u];
+		r[u]=lf[u];
+		return;
+	}
+	l[u]=1e9,r[u]=-1e9;
+	for(ll i:mas[u]){
+		if(i==p) continue;
+		dfs2(i,u);
+		l[u]=min(l[u],l[i]);
+		r[u]=max(r[u],r[i]);
+	}
+}
+int main()
+{//1是根节点 
+	int n;
+	cin>>n; 
+	for(int i=1;i<n;++i){
+		cin>>a>>b;
+		mas[a].push_back(b);
+		mas[b].push_back(a);
+	}
+	dfs(1,-1);
+	dfs2(1,-1); 
+	for(int i=1;i<=n;++i){
+		cout<<l[i]<<" "<<r[i]<<endl;
+	}
+	return 0;
+}
+```
+
